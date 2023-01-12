@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 
+const generateTeam = require('./src/site-generator');
 const Manager = require('./lib/Manager');
 const Engineer = require('./lib/Engineer');
 const Intern = require('./lib/Intern');
@@ -48,23 +49,25 @@ const optionsMenu = () => {
                 type: 'list',
                 name: 'userMenu',
                 message: 'Please select how you would like to proceed:',
-                choices: ['add an Engineer', 'add an Intern', 'Finish']
+                choices: ['addEngineer', 'addIntern', 'Finish']
             }
         ])
         .then(chosenStep => {
             switch (chosenStep.userMenu) {
-                case 'add an Engineer':
-                    engineerPrompt()
-                case 'add an Intern':
+                case 'addEngineer':
+                    engineerPrompt();
+                    break
+                case 'addIntern':
                     internPrompt();
-                case 'Finish':
+                    break
+                default:
                     generateSite();
             }
         })
 }
 
 function engineerPrompt() {
-    console.log('Now adding an Engineer to your team:')
+//    console.log('Now adding an Engineer to your team:')
     inquirer
         .prompt([
             {
@@ -91,12 +94,12 @@ function engineerPrompt() {
         .then((answers) => {
             const engineer = new Engineer(answers.engineerName, answers.engineerID, answers.engineerEmail, answers.engineerGitHub)
             teamMembers.push(engineer);
-            userMenu();
+            optionsMenu();
         })
 }
 
 function internPrompt() {
-    console.log('Now adding an Intern to your team:')
+    //console.log('Now adding an Intern to your team:')
     inquirer
         .prompt([
             {
@@ -123,13 +126,13 @@ function internPrompt() {
         .then((answers) => {
             const intern = new Intern(answers.internName, answers.internID, answers.internEmail, answers.internSchool)
             teamMembers.push(intern);
-            userMenu();
+            optionsMenu();
         });
 };
 
 function generateSite() {
     console.log('Generating team info...')
-    fs.writeFile(generateHTML(teamMembers))
+    fs.writeFileSync('./dist/team.html', generateTeam(teamMembers), 'utf-8')
 }
 
 managerPrompt();
